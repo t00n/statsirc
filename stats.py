@@ -1,17 +1,21 @@
+import argparse
 from collections import defaultdict
 count_user = defaultdict(lambda: 0)
 
-log = open("freenode/#urlab.log", "r")
+parser = argparse.ArgumentParser(description="Get stats from a irc log")
+parser.add_argument('logfile', type=str)
+args = parser.parse_args()
 
+log = open(args.logfile, "r")
 for line in log.readlines():
 	# avoid netsplit, day changed, freenode moderation
-	if "-!-" not in line and line[:3] != "---" and line[6] != "!":
+	if line.strip() != "" and "::" not in line and "-!-" not in line and line[:3] != "---" and line[6] != "!":
 		# /me
 		if line[7] == "*":
 			user = line.split(" ")[3]
 		# message
 		else:
-			user = line.split(">")[0].split("< ")[-1]
+			user = line.split(">")[0].split("<")[-1].strip()
 		user = user.rstrip("_")
 		count_user[user] += 1
 
